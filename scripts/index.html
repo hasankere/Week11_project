@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Forecast Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        function fetchForecast() {
+            fetch('/forecast')
+            .then(response => response.json())
+            .then(data => {
+                let traces = [];
+                for (let stock in data) {
+                    traces.push({
+                        x: Array.from(Array(30).keys()), 
+                        y: data[stock], 
+                        mode: 'lines', 
+                        name: stock
+                    });
+                }
+                Plotly.newPlot('forecastChart', traces, {title: 'Stock Price Forecast'});
+            });
+        }
+
+        function fetchPortfolio() {
+            fetch('/optimize')
+            .then(response => response.json())
+            .then(data => {
+                let labels = ['TSLA', 'SPY', 'BND'];
+                let values = data.optimized_weights;
+                Plotly.newPlot('portfolioChart', [{labels, values, type: 'pie'}], {title: 'Optimized Portfolio Weights'});
+            });
+        }
+    </script>
+</head>
+<body onload="fetchForecast(); fetchPortfolio();">
+    <h1>Stock Forecast Dashboard</h1>
+    <div id="forecastChart" style="width: 600px; height: 400px;"></div>
+    <div id="portfolioChart" style="width: 600px; height: 400px;"></div>
+</body>
+</html>
